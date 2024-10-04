@@ -1,0 +1,18 @@
+.navbar-container {
+   padding: 10px 10px10px 10px;
+   background-color: blue;
+   
+   display: flex;
+   place-items: center;
+}
+
+.navbar-list{
+   
+   display: flex;
+   justify-content: space-between;
+   padding: 10px 10px 10px 10px;
+}
+
+.navbar-item{
+   padding: 10px 10px 10px 10px;
+}
