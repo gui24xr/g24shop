@@ -1,5 +1,5 @@
 
-import { createUserWithEmailAndPassword, getIdToken, signInWithEmailAndPassword } from 'firebase/auth'
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
 import {  collection, addDoc, setDoc, doc, getDoc,query,where,getDocs } from "firebase/firestore"
 
 import { auth,db } from '../firebase/firebaseappconfig'
@@ -76,18 +76,12 @@ export class UsersRepositories{
     
     */
 
-    static async login({userName,password}){
+    static  login({userName,password}){
         //Iniciamos la sesion y si todo salio ok devolvemos la data del user y el idToken del user
 
         try{
-            const res = await signInWithEmailAndPassword(auth,userName,password)
+             signInWithEmailAndPassword(auth,userName,password)
 
-            const idToken = await res.user.getIdToken();
-            console.log('Token: ', idToken)
-            const userId = res.user.uid
-            const userDTO = await this.getUser({userId:userId})
-
-            return {...userDTO,authToken: idToken}
         }catch(error){
             throw error
         }

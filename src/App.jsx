@@ -2,32 +2,35 @@ import './App.css'
 import { useEffect } from 'react';
 import { Routes,Route,BrowserRouter } from 'react-router-dom'
 import { auth } from './firebase/firebaseappconfig';
-import { verifyIdToken } from 'firebase/auth';
+import { onAuthStateChanged } from 'firebase/auth';
 import { Navbar,LoginForm,RegisterForm } from './components/index.js';
 import { UsersRepositories } from './repositories/users.repositories.js';
+import { useSelector, useDispatch } from 'react-redux';
 
 
 function App() {
 
+  const onAuthState = useSelector(state => state.onAuth)
+
+  const unsubscribe = onAuthStateChanged(auth,(user) => {
+    if (user) {
+      console.log('Cambio el user: ',user.uid)// Usuario autenticado
+    } else {
+      console.log('user error') // No hay usuario autenticado
+    }
+  });
+
+
   useEffect(() => {
-    //Miro en el local storage si hay un token valido y de acuerdo a eso seteo en redux
-    const fireBaseTokenInStore = localStorage.getItem('firebaseToken')
+    
+    // Limpieza al desmontar el componente
+    return () => unsubscribe();
+  }, [unsubscribe]); // Dependencias vacías para ejecutar solo una vez
 
-    if (fireBaseTokenInStore){
-      //Pido los datos a firebase para setearlos
-      console.log('EGEEG: ', fireBaseTokenInStore)
-      const { firebaseToken } = JSON.parse(fireBaseTokenInStore);
-      signInWithCustomToken(auth,firebaseToken)
-      .then(res => console.log('Me han respondido: ', res))
-      .catch(err => console.log(err))
-    }
-    else{
-      //deberia renderizar el login page.
-      console.log('No hay token o es invalido')
-    }
 
-  }, []);
-
+  useEffect(()=>{ 
+    console.log('Cambio authState=> ',onAuthState)
+  },[onAuthState])
 
   return (
     <>

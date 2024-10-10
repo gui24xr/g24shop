@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
+import { getAuth, browserLocalPersistence, setPersistence } from "firebase/auth";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -18,5 +18,18 @@ const firebaseConfig = {
 // Initialize Firebase
 export const firebaseApp = initializeApp(firebaseConfig)
 //
-export const db = getFirestore(firebaseApp)
-export const auth = getAuth(firebaseApp)
+const db = getFirestore(firebaseApp)
+const auth = getAuth(firebaseApp)
+
+setPersistence(auth, browserLocalPersistence)
+  .then(() => {
+    console.log("Persistencia configurada");
+  })
+  .catch((error) => {
+    console.error("Error al establecer la persistencia:", error);
+  });
+
+  export {
+    db,
+    auth
+  }
