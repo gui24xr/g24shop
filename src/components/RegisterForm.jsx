@@ -1,7 +1,6 @@
 import React from 'react'
 import './styles/forms.css'
-import { auth } from '../firebase/firebaseappconfig'
-import { createUserWithEmailAndPassword } from 'firebase/auth'
+
 import { UsersRepositories } from '../repositories/users.repositories.js'
 
 const RegisterForm = () => {

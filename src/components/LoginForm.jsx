@@ -19,7 +19,7 @@ const LoginForm = () => {
 
     try{
       UsersRepositories.login({userName:username, password:password})
-      dispatch(setOnAuthState('login'))
+      //dispatch(setOnAuthState('login'))
     }catch(error){
       console.log(error)
     }

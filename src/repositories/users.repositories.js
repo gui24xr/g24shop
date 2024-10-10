@@ -15,8 +15,7 @@ export class UsersRepositories{
 
 
     static async getUser({userId}){
-        //Como me van a mandar uid y nosotros guardamos el id del user en la coleccon user con el uid, lo buscamos con ese criterio y lo devolvemos
-         // Obtener el documento recién creado
+       //Retorna un userDTO del user. Simel user no existe devuelve null.
          try{
             //Obtengo la referencia al documento.
             const userDocRef = doc(db,'users',userId)
@@ -26,7 +25,7 @@ export class UsersRepositories{
             /*Los objetos documentSnapShot tienen un metodo data() que devuelve  el registro de la base de datos en formato de objeto de JS, y si no existe el documento devuelve undefined*/
             const searchedUser = userDocSnap.data()
 
-            if (!searchedUser) throw new Error('No existe el usuario buscado...')
+            if (!searchedUser) return null
 
             return new UserDTO({
                 userId:userId,
@@ -45,37 +44,6 @@ export class UsersRepositories{
        
     }
 
-
-    static async find({userName,email}){
-        //Busca usuarios en la coleccion por userName y/o email.
-        //Si los encuentra devuelve un dto con su data, si no existe, devuelve null.
-        try{
-
-        }catch(error){
-            throw error
-        }
-    }
-
-
-    /*
-    const buscarEnColeccion = async (emailBuscado, nombreBuscado) => {
-    const coleccionRef = collection(db, "usuarios");
-    
-    // Definir la consulta con múltiples condiciones
-    const consulta = query(
-        coleccionRef, 
-        where("email", "==", emailBuscado), 
-        where("nombre", "==", nombreBuscado)
-    );
-
-    const querySnapshot = await getDocs(consulta);
-    
-    querySnapshot.forEach((doc) => {
-        console.log(doc.id, " => ", doc.data());
-    });
-    
-    */
-
     static  login({userName,password}){
         //Iniciamos la sesion y si todo salio ok devolvemos la data del user y el idToken del user
 
@@ -88,15 +56,29 @@ export class UsersRepositories{
     }
 
     static async register({email,password,userName,name,lastName}){
-        //Creamos un usuario y le seteamos su userName,name,lastname.
-        //Seteo un profilePicture por defecto.
-        //Le creamos un carro
+        //1- Miramos que no exista en la coleccion users un usuario con el username ingresado
+        //2- De que el mail no se repita, se encarga firebase
+        //3- Creamos el usuario en firebase y tomamos su uid. Creamos un carro para asignarle y tomamos su id.
+        //4- Creamos el user en la coleccion users con sus datos
+        //5- Devolvemos el userId del user creado.
+
         try{
             console.log('Me llego: ', email,password,userName,name,lastName)
             /*ANTES MIRAMOS QUE NO EXISTE UN USER EN LA BASE DE DATOS CON ESTE USERNAME, */
             const filter =  query(usersCollection,where("userName","==",userName))
             const querySnapshot = await getDocs(filter)
-            console.log(querySnapshot)
+            /* El metodo getDocs devuelve un objeto querySnapshot el cual tiene 3 caracteristicas importantes:
+            
+                1- un metodo forEach que recibe un callback para indicar que hacer con los elementos de la consulta (igual que el meotdo de arrays pero no es un array)
+                        querySnapshot.forEach(item => console.log('Item: ', item))
+                2- una propiedad size que indica la cantidad de resultados.
+                                console.log('QerySnapShote propiedad size: ', querySnapshot.size)
+                3- Un array de objetos docSnapShot. Si la consulta no tiene resultados es vacio el array 
+                     console.log('propiedad docs', querySnapshot.docs)
+        
+                */
+            if (querySnapshot.docs.length>0) throw new Error("Ya existe un user con el username ingresado.")
+           
             //Creo el usuario en el servicio de usuarios de firebase
             const registeredUser = await createUserWithEmailAndPassword(auth,email,password)
             //Si salio bien la registracion tomo el uid del user creado en el servicio de usuarios de firebase
@@ -112,7 +94,7 @@ export class UsersRepositories{
             await setDoc(userDocRef,{
                     email:registeredUser.user.email,
                     userName: userName,
-                    password: password,
+                    //password: password, password no, pues es problema de firebase.
                     name: name,
                     lastName: lastName,
                     profilePic: DEFAULT_PROFILE_PICTURE,
@@ -123,8 +105,7 @@ export class UsersRepositories{
 
             //Ahora leo, para devolverlo...
             console.log(registeredUser)
-            const userDTO = await this.getUser({userId:userId})
-            return userDTO
+           return registeredUser.user.uid
            
 
         }catch(error){

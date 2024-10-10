@@ -8,6 +8,7 @@ import { UsersRepositories } from './repositories/users.repositories.js';
 import { useSelector, useDispatch } from 'react-redux';
 
 
+
 function App() {
 
   const onAuthState = useSelector(state => state.onAuth)
@@ -15,22 +16,27 @@ function App() {
   const unsubscribe = onAuthStateChanged(auth,(user) => {
     if (user) {
       console.log('Cambio el user: ',user.uid)// Usuario autenticado
+      //Existe el user???
+      UsersRepositories.getUser({userId:user.uid})
+      .then( res => {
+        console.log('El user: ', res)
+        
+
+      })
+      .catch(err => console.log(err))
     } else {
       console.log('user error') // No hay usuario autenticado
     }
   });
 
-
+//5657665
   useEffect(() => {
-    
     // Limpieza al desmontar el componente
     return () => unsubscribe();
-  }, [unsubscribe]); // Dependencias vacías para ejecutar solo una vez
+  }, [])
 
 
-  useEffect(()=>{ 
-    console.log('Cambio authState=> ',onAuthState)
-  },[onAuthState])
+
 
   return (
     <>
