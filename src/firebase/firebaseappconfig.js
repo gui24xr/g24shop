@@ -21,13 +21,15 @@ export const firebaseApp = initializeApp(firebaseConfig)
 const db = getFirestore(firebaseApp)
 const auth = getAuth(firebaseApp)
 
-setPersistence(auth, browserLocalPersistence)
-  .then(() => {
+const setPersistenceResult = await setPersistence(auth, browserLocalPersistence)
+//console.log('Persistence result: ', setPersistenceResult)
+  /*.then(() => {
     console.log("Persistencia configurada");
   })
   .catch((error) => {
     console.error("Error al establecer la persistencia:", error);
   });
+  */
 
   export {
     db,
